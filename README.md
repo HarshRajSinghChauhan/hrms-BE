@@ -11,7 +11,7 @@ This API enables an admin to:
 - Update attendance status
 - Filter employees by employee ID
 
-The system is designed to be minimal, clean, and production-ready, focusing only on essential HR operations as required in the assignment.
+The system follows a modular architecture with separate Django apps for employees and attendance, ensuring better scalability and maintainability.
 
 ---
 
@@ -40,6 +40,7 @@ Render PostgreSQL
 - django-filter
 - django-cors-headers
 - dj-database-url
+- WhiteNoise (static file handling in production)
 
 ---
 
@@ -52,6 +53,18 @@ Django REST API (Render)
         |
         v
 PostgreSQL Database (Render)
+
+Project Structure:
+
+backend/
+│
+├── config/          (project configuration)
+├── employees/       (employee domain app)
+├── attendance/      (attendance domain app)
+│
+└── manage.py
+
+Each domain (employees and attendance) is implemented as a separate Django app to maintain clear separation of concerns.
 
 ---
 
@@ -173,7 +186,7 @@ Request Body:
 
 ## Error Handling
 
-The API returns:
+The API returns appropriate HTTP status codes:
 
 - 400 Bad Request for validation errors
 - 404 Not Found for invalid resources
@@ -194,7 +207,7 @@ Employees can be filtered by:
 
 GET /api/employees/?employee_id=EMP001
 
-Supports exact match filtering using django-filter.
+Filtering is implemented using django-filter at the database level.
 
 ---
 
@@ -244,12 +257,13 @@ DATABASE_URL=<provided by Render PostgreSQL>
 - Backend deployed on Render Web Service
 - PostgreSQL database used in production
 - Gunicorn used as WSGI server
-- Migrations executed during deployment
-- CORS configured to allow frontend access
+- Migrations executed automatically during deployment
+- Static files handled using WhiteNoise
+- CORS configured for frontend integration
 
-Start Command used in production:
+Production Start Command:
 
-python manage.py migrate && gunicorn config.wsgi:application
+python manage.py migrate && python manage.py collectstatic --noinput && gunicorn config.wsgi:application
 
 ---
 
